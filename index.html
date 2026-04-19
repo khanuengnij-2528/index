@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เว็บแอพลงทุน–หนี้</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    form { margin-bottom: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    .summary { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>เว็บแอพลงทุน–หนี้</h1>
+
+  <h2>เพิ่มการลงทุน</h2>
+  <form id="investmentForm">
+    <input type="text" id="invName" placeholder="ชื่อสินทรัพย์" required>
+    <input type="number" id="invAmount" placeholder="จำนวนเงิน" required>
+    <button type="submit">บันทึก</button>
+  </form>
+
+  <h2>เพิ่มหนี้</h2>
+  <form id="debtForm">
+    <input type="number" id="debtAmount" placeholder="ยอดหนี้" required>
+    <input type="number" id="debtInterest" placeholder="ดอกเบี้ย (%)" required>
+    <input type="number" id="debtMonths" placeholder="ระยะเวลา (เดือน)" required>
+    <button type="submit">บันทึก</button>
+  </form>
+
+  <h2>รายการทั้งหมด</h2>
+  <table id="recordsTable">
+    <tr><th>ประเภท</th><th>รายละเอียด</th><th>จำนวนเงิน</th></tr>
+  </table>
+
+  <div class="summary">
+    รวมการลงทุน: <span id="totalInv">0</span><br>
+    รวมยอดหนี้: <span id="totalDebt">0</span>
+  </div>
+
+  <script>
+    const investments = [];
+    const debts = [];
+
+    const invForm = document.getElementById('investmentForm');
+    const debtForm = document.getElementById('debtForm');
+    const table = document.getElementById('recordsTable');
+    const totalInv = document.getElementById('totalInv');
+    const totalDebt = document.getElementById('totalDebt');
+
+    invForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('invName').value;
+      const amount = parseFloat(document.getElementById('invAmount').value);
+      investments.push({ name, amount });
+      updateTable();
+    });
+
+    debtForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('debtAmount').value);
+      const interest = parseFloat(document.getElementById('debtInterest').value);
+      const months = parseInt(document.getElementById('debtMonths').value);
+      debts.push({ amount, interest, months });
+      updateTable();
+    });
+
+    function updateTable() {
+      table.innerHTML = "<tr><th>ประเภท</th><th>รายละเอียด</th><th>จำนวนเงิน</th></tr>";
+      investments.forEach(inv => {
+        table.innerHTML += `<tr><td>ลงทุน</td><td>${inv.name}</td><td>${inv.amount}</td></tr>`;
+      });
+      debts.forEach(debt => {
+        const total = debt.amount * Math.pow(1 + debt.interest/100, debt.months);
+        table.innerHTML += `<tr><td>หนี้</td><td>${debt.interest}%/${debt.months} เดือน</td><td>${total.toFixed(2)}</td></tr>`;
+      });
+      totalInv.textContent = investments.reduce((sum, i) => sum + i.amount, 0);
+      totalDebt.textContent = debts.reduce((sum, d) => sum + d.amount * Math.pow(1 + d.interest/100, d.months), 0).toFixed(2);
+    }
+  </script>
+</body>
+</html>
